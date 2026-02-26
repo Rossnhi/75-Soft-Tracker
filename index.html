@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080510">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="75 Soft Challenge Tracker with Metabolic Night Shift Protocol">
+<link rel="manifest" href="./manifest.json">
+<title>75 Soft · Night Shift</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #f7f3ee;
+  --ink-dim: rgba(247,243,238,0.45);
+  --ink-faint: rgba(247,243,238,0.12);
+  --bg: #080510;
+  --rose: #c9788a;
+  --mauve: #9b7db5;
+  --sage: #7aab96;
+  --gold: #c4a46b;
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+  --r: 18px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;height:100%;}
+body{
+  font-family:'Jost',sans-serif;
+  background:var(--bg);color:var(--ink);
+  min-height:100dvh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.bg-orbs::before{content:'';position:absolute;top:-20%;left:-10%;width:70vw;height:70vw;
+  background:radial-gradient(circle,rgba(155,125,181,0.11) 0%,transparent 70%);border-radius:50%;
+  animation:dA 20s ease-in-out infinite alternate;}
+.bg-orbs::after{content:'';position:absolute;bottom:-10%;right:-10%;width:55vw;height:55vw;
+  background:radial-gradient(circle,rgba(201,120,138,0.08) 0%,transparent 70%);border-radius:50%;
+  animation:dB 25s ease-in-out infinite alternate;}
+@keyframes dA{from{transform:translate(0,0)}to{transform:translate(5%,8%)}}
+@keyframes dB{from{transform:translate(0,0)}to{transform:translate(-6%,-5%)}}
+
+.app{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:0 18px 90px;}
+
+/* HEADER */
+.header{padding:44px 0 16px;text-align:center;animation:rise .7s cubic-bezier(.22,1,.36,1) both;}
+.eyebrow{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:10px;}
+.header h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.9rem;line-height:1;letter-spacing:-.01em;}
+.header h1 em{font-style:italic;color:var(--rose);}
+
+/* RING */
+.ring-wrap{display:flex;justify-content:center;align-items:center;gap:24px;margin:22px 0 18px;animation:rise .7s .1s cubic-bezier(.22,1,.36,1) both;}
+.ring-container{position:relative;display:flex;align-items:center;justify-content:center;width:120px;height:120px;}
+.ring-svg circle.track{fill:none;stroke:var(--card-border);stroke-width:5;}
+.ring-svg circle.prog{fill:none;stroke-width:5;stroke-linecap:round;stroke:var(--mauve);
+  transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1);
+  transform-origin:60px 60px;transform:rotate(-90deg);}
+.ring-center{position:absolute;text-align:center;pointer-events:none;}
+.ring-day{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;line-height:1;}
+.ring-lbl{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim);margin-top:2px;}
+.ring-stats{text-align:left;}
+.rstat-v{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:var(--rose);line-height:1;}
+.rstat-l{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);}
+.rstat-v.mauve{color:var(--mauve);}
+
+/* TABS */
+.tabs{display:flex;gap:5px;background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:14px;padding:4px;margin-bottom:20px;animation:rise .7s .15s cubic-bezier(.22,1,.36,1) both;}
+.tab{flex:1;padding:9px 4px;border:none;background:none;
+  font-family:'Jost',sans-serif;font-size:.6rem;font-weight:400;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);cursor:pointer;
+  border-radius:10px;transition:all .25s;}
+.tab.active{background:rgba(155,125,181,.2);color:var(--ink);font-weight:500;}
+
+/* SECTIONS */
+.section{display:none;}
+.section.active{display:block;animation:rise .4s cubic-bezier(.22,1,.36,1) both;}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:18px;margin-bottom:12px;transition:border-color .3s;}
+.card:hover{border-color:rgba(155,125,181,.2);}
+.slabel{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--ink-dim);margin:20px 0 9px 2px;}
+.ctitle{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:400;margin-bottom:4px;}
+.csub{font-size:.72rem;color:var(--ink-dim);line-height:1.5;}
+
+/* CHECKS */
+.ci{display:flex;align-items:flex-start;gap:12px;padding:11px 0;
+  border-bottom:1px solid var(--card-border);cursor:pointer;transition:opacity .2s;}
+.ci:last-child{border-bottom:none;padding-bottom:0;}
+.ci:hover{opacity:.8;}
+.cb{width:22px;height:22px;border-radius:7px;border:1px solid rgba(255,255,255,.14);
+  flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .25s;}
+.cb.on{background:var(--mauve);border-color:var(--mauve);}
+.cb.on::after{content:'';display:block;width:6px;height:10px;border:2px solid white;
+  border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px);}
+.cl{font-size:.8rem;line-height:1.4;flex:1;color:var(--ink);transition:color .2s;}
+.cl.done{color:var(--ink-dim);text-decoration:line-through;}
+
+/* WATER */
+.wgrid{display:flex;flex-wrap:wrap;gap:7px;padding:4px 0 2px;}
+.wdrop{width:30px;height:30px;border-radius:50%;border:1px solid rgba(122,171,150,.3);
+  background:none;cursor:pointer;transition:all .25s;position:relative;}
+.wdrop.filled{background:rgba(122,171,150,.22);border-color:var(--sage);}
+.wdrop.filled::after{content:'';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:10px;height:13px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  background:var(--sage);opacity:.7;}
+.wnote{font-size:.7rem;color:var(--ink-dim);margin-top:9px;}
+
+/* NUTRITION RULES */
+.nr{display:flex;gap:10px;align-items:flex-start;padding:9px 0;
+  border-bottom:1px solid var(--card-border);font-size:.78rem;line-height:1.4;}
+.nr:last-of-type{border-bottom:none;}
+.nrdot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:6px;}
+
+/* BUTTONS */
+.btn{font-family:'Jost',sans-serif;font-size:.76rem;font-weight:500;letter-spacing:.06em;
+  padding:11px 22px;border-radius:12px;border:1px solid var(--card-border);
+  background:var(--card-bg);color:var(--ink);cursor:pointer;transition:all .2s;}
+.btn:hover{border-color:rgba(155,125,181,.4);}
+.btn.primary{background:var(--mauve);border-color:transparent;color:#fff;box-shadow:0 4px 20px rgba(155,125,181,.3);}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 26px rgba(155,125,181,.4);}
+.btn.rose-btn{background:var(--rose);border-color:transparent;color:#fff;}
+.brow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+
+/* START BANNER */
+.sbanner{background:linear-gradient(135deg,rgba(196,164,107,.1),rgba(201,120,138,.07));
+  border:1px solid rgba(196,164,107,.22);border-radius:var(--r);
+  padding:15px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.sbtext{font-size:.76rem;color:var(--ink-dim);line-height:1.5;}
+.sbtext strong{color:var(--gold);display:block;margin-bottom:2px;font-weight:500;}
+
+/* CUTOFF */
+.cutoff-box{text-align:center;padding:16px;background:rgba(201,120,138,.07);
+  border:1px solid rgba(201,120,138,.18);border-radius:14px;margin:12px 0;}
+.cutoff-t{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:var(--rose);}
+.cutoff-n{font-size:.68rem;color:var(--ink-dim);margin-top:4px;}
+input[type=time],input[type=date]{width:100%;background:rgba(255,255,255,.05);
+  border:1px solid var(--card-border);border-radius:10px;color:var(--ink);
+  font-family:'Jost',sans-serif;font-size:.85rem;padding:10px 14px;
+  margin-top:6px;outline:none;transition:border-color .2s;}
+input[type=time]:focus,input[type=date]:focus{border-color:var(--mauve);}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7);}
+
+/* GH WINDOW */
+.gh-window{text-align:center;padding:26px;
+  background:linear-gradient(135deg,rgba(155,125,181,.1),rgba(201,120,138,.07));
+  border:1px solid rgba(155,125,181,.18);border-radius:var(--r);margin-bottom:12px;}
+.gh-t{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:var(--mauve);letter-spacing:.04em;}
+.gh-l{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin-top:6px;}
+.gh-d{font-size:.73rem;color:var(--ink-dim);margin-top:10px;line-height:1.55;}
+
+/* ══════════════════════════════════
+   EXERCISE CARDS
+══════════════════════════════════ */
+.exc{background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--r);margin-bottom:14px;overflow:hidden;transition:border-color .3s;}
+.exc.done-ex{border-color:rgba(155,125,181,.35);background:rgba(155,125,181,.05);}
+.exh{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;}
+.exn{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;
+  color:var(--ink-dim);min-width:28px;line-height:1;}
+.exi{flex:1;}
+.exname{font-family:'Cormorant Garamond',serif;font-size:1.05rem;}
+.extiming{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin-top:2px;}
+.extick{width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:.7rem;color:var(--ink-dim);transition:all .3s;}
+.extick.done{background:var(--mauve);border-color:var(--mauve);color:#fff;}
+.exb{padding:0 18px 18px;display:none;}
+.exb.open{display:block;}
+.extip{font-size:.74rem;color:var(--ink-dim);line-height:1.65;
+  border-left:2px solid var(--mauve);padding:10px 12px;
+  border-radius:0 8px 8px 0;margin-bottom:14px;
+  background:rgba(155,125,181,.06);}
+
+/* ══════════════════════════════════
+   EXERCISE TIMER
+══════════════════════════════════ */
+.extimer{display:flex;align-items:center;gap:14px;
+  background:rgba(155,125,181,.08);border-radius:12px;padding:12px 14px;margin-top:14px;}
+.extime-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;
+  color:var(--ink);min-width:68px;line-height:1;}
+.extime-phase{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-dim);}
+.extime-btns{display:flex;gap:7px;margin-left:auto;}
+
+/* ══════════════════════════════════
+   STICK FIGURE GLYPHS
+══════════════════════════════════ */
+.glyph-stage{
+  background:rgba(155,125,181,.05);
+  border:1px solid rgba(155,125,181,.1);
+  border-radius:14px;
+  height:180px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;overflow:hidden;
+}
+.glyph-stage svg{overflow:visible;}
+
+/* Shared figure styles */
+.fig-head{fill:none;stroke:var(--ink);stroke-width:2.5;}
+.fig-body{stroke:var(--ink);stroke-width:2.5;stroke-linecap:round;fill:none;}
+.fig-limb{stroke:rgba(247,243,238,.55);stroke-width:2.2;stroke-linecap:round;fill:none;}
+.fig-active{stroke:var(--rose);stroke-width:2.8;stroke-linecap:round;fill:none;
+  filter:drop-shadow(0 0 5px var(--rose));}
+.fig-floor{stroke:rgba(255,255,255,.08);stroke-width:1;fill:none;}
+.fig-joint{fill:rgba(247,243,238,.35);stroke:none;}
+.fig-joint-active{fill:var(--rose);stroke:none;}
+
+/* ── EX 1: Alternating Leg Drops — crossfade two drawn positions ── */
+/* posA: left leg raised (knee bent, heel up), right leg raised */
+/* posB: left leg dropped (heel near floor), right leg still raised */
+/* Then posC: left raised, right dropped — achieved by two out-of-phase fades */
+@keyframes ex1-fadeA {
+  0%,15%   { opacity:1; }
+  35%,65%  { opacity:0; }
+  85%,100% { opacity:1; }
+}
+@keyframes ex1-fadeB {
+  0%,15%   { opacity:0; }
+  35%,65%  { opacity:1; }
+  85%,100% { opacity:0; }
+}
+.ex1-posA { animation: ex1-fadeA 2.4s ease-in-out infinite; }
+.ex1-posB { animation: ex1-fadeB 2.4s ease-in-out infinite; }
+
+/* ── EX 2: Reverse Crunch — crossfade kick-out vs tuck ── */
+@keyframes ex2-fadeKick {
+  0%,15%   { opacity:1; }
+  35%,65%  { opacity:0; }
+  85%,100% { opacity:1; }
+}
+@keyframes ex2-fadeTuck {
+  0%,15%   { opacity:0; }
+  35%,65%  { opacity:1; }
+  85%,100% { opacity:0; }
+}
+.ex2-kick { animation: ex2-fadeKick 2s ease-in-out infinite; }
+.ex2-tuck { animation: ex2-fadeTuck 2s ease-in-out infinite; }
+
+/* ── EX 3: Crunches (lying, upper body curls up) ── */
+@keyframes ex3-upper{
+  0%,100%{transform:rotate(0deg);}
+  40%,60%{transform:rotate(-32deg);}
+}
+.ex3-upper{animation:ex3-upper 2s ease-in-out infinite;transform-origin:0px 0px;}
+
+/* ── EX 4: Donkey Kicks — crossfade rest vs kick positions ── */
+@keyframes ex4-fadeRest {
+  0%,15%   { opacity:1; }
+  35%,65%  { opacity:0; }
+  85%,100% { opacity:1; }
+}
+@keyframes ex4-fadeKick {
+  0%,15%   { opacity:0; }
+  35%,65%  { opacity:1; }
+  85%,100% { opacity:0; }
+}
+.ex4-rest { animation: ex4-fadeRest 2s ease-in-out infinite; }
+.ex4-kick { animation: ex4-fadeKick 2s ease-in-out infinite; }
+
+/* ── EX 5: Toe Touch Crunch (legs up, reach for toes) ── */
+@keyframes ex5-reach{
+  0%,100%{transform:rotate(0deg);}
+  40%,60%{transform:rotate(-38deg);}
+}
+.ex5-reach{animation:ex5-reach 2.2s ease-in-out infinite;transform-origin:0px 0px;}
+
+/* RITUAL */
+.ritrow{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--card-border);align-items:flex-start;}
+.ritrow:last-child{border-bottom:none;}
+.ritn{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:300;color:var(--rose);min-width:18px;margin-top:1px;}
+.ritt{font-size:.82rem;color:var(--ink);margin-bottom:3px;}
+.ritd{font-size:.71rem;color:var(--ink-dim);line-height:1.5;}
+
+/* LOG */
+.sdots{display:flex;flex-wrap:wrap;gap:5px;padding:4px 0;}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--card-border);}
+.sdot.done{background:var(--mauve);}
+.sdot.today{background:var(--rose);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.hrow{display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;margin-bottom:7px;}
+.hday{font-family:'Cormorant Garamond',serif;font-size:1.2rem;min-width:28px;color:var(--mauve);}
+.hbars{display:flex;gap:3px;flex:1;}
+.hbar{flex:1;height:6px;border-radius:3px;background:var(--card-border);}
+.hbar.done{background:var(--mauve);}
+.hscore{font-size:.7rem;color:var(--ink-dim);min-width:34px;text-align:right;}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;
+  background:rgba(8,5,16,.96);backdrop-filter:blur(20px);
+  border-top:1px solid var(--card-border);
+  display:flex;padding:8px 12px 22px;z-index:100;}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 4px;border:none;background:none;color:var(--ink-dim);cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:10px;transition:all .2s;}
+.nbtn.active{color:var(--ink);background:rgba(155,125,181,.1);}
+.nicon{font-size:1rem;line-height:1;}
+
+/* TOAST */
+.toast{position:fixed;top:16px;left:50%;
+  transform:translateX(-50%) translateY(-70px);
+  background:var(--mauve);color:#fff;
+  padding:10px 20px;border-radius:12px;font-size:.8rem;font-weight:500;
+  z-index:999;white-space:nowrap;
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 4px 20px rgba(155,125,181,.4);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* INSTALL BANNER */
+.install-bar{display:none;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(196,164,107,.1);border:1px solid rgba(196,164,107,.2);
+  border-radius:14px;padding:12px 16px;margin-bottom:12px;font-size:.75rem;}
+.install-bar.visible{display:flex;}
+</style>
+</head>
+<body>
+<div class="bg-orbs"></div>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+
+  <!-- INSTALL PROMPT -->
+  <div class="install-bar" id="installBar">
+    <span style="color:var(--ink-dim);">Add to home screen for offline use</span>
+    <button class="btn" style="padding:8px 14px;font-size:.7rem;" id="installBtn">Install</button>
+    <button class="btn" style="padding:8px 10px;font-size:.7rem;" onclick="document.getElementById('installBar').style.display='none'">✕</button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="eyebrow">Metabolic Night Shift</div>
+    <h1>75 <em>Soft</em></h1>
+  </div>
+
+  <!-- RING -->
+  <div class="ring-wrap">
+    <div class="ring-container">
+      <svg class="ring-svg" viewBox="0 0 120 120" width="120" height="120">
+        <circle class="track" cx="60" cy="60" r="50"/>
+        <circle class="prog" cx="60" cy="60" r="50"
+          stroke-dasharray="314.16" stroke-dashoffset="314.16" id="ringCircle"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-day" id="ringDay">—</div>
+        <div class="ring-lbl">Day</div>
+      </div>
+    </div>
+    <div class="ring-stats">
+      <div class="rstat-v" id="statLeft">—</div>
+      <div class="rstat-l">Days left</div>
+      <div style="margin-top:10px;">
+        <div class="rstat-v mauve" id="statPct">0%</div>
+        <div class="rstat-l">Today done</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('today')">Today</button>
+    <button class="tab" onclick="switchTab('night')">Night</button>
+    <button class="tab" onclick="switchTab('workout')">Workout</button>
+    <button class="tab" onclick="switchTab('glow')">Glow</button>
+    <button class="tab" onclick="switchTab('log')">Log</button>
+  </div>
+
+  <!-- ═══ TODAY ═══ -->
+  <div class="section active" id="tab-today">
+    <div class="sbanner" id="startBanner">
+      <div class="sbtext"><strong>Challenge not started</strong>Set your Day 1 when you are ready</div>
+      <button class="btn rose-btn" onclick="openStart()" style="flex-shrink:0;font-size:.7rem;padding:9px 14px;">Set Start</button>
+    </div>
+    <div id="startModal" style="display:none;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--r);padding:18px;margin-bottom:12px;">
+      <div class="ctitle" style="margin-bottom:6px;">When does your challenge begin?</div>
+      <div class="csub" style="margin-bottom:10px;">Pick the date your period ends and you are ready. This becomes Day 1.</div>
+      <input type="date" id="startDateInput"/>
+      <div class="brow">
+        <button class="btn primary" onclick="setStart()">Confirm</button>
+        <button class="btn" onclick="closeStart()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="slabel">75 Soft Rules</div>
+
+    <div class="card">
+      <div class="ctitle">45-Min Workout</div>
+      <div class="csub" style="margin-bottom:12px;">Any style — can be active recovery on easy days</div>
+      <div class="ci" onclick="toggle('w45')">
+        <div class="cb" id="cb-w45"></div>
+        <div class="cl" id="cl-w45">Completed 45 minutes of movement today</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Water Intake</div>
+      <div class="csub" style="margin-bottom:12px;">Target: 3 litres · tap to track each glass</div>
+      <div class="wgrid" id="wgrid"></div>
+      <div class="wnote" id="wnote">0 / 12 glasses</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Read 10 Pages</div>
+      <div class="csub" style="margin-bottom:12px;">Non-fiction or self-development</div>
+      <div class="ci" onclick="toggle('read')">
+        <div class="cb" id="cb-read"></div>
+        <div class="cl" id="cl-read">Read at least 10 pages</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Nutrition Plan</div>
+      <div class="csub" style="margin-bottom:4px;">Your personal rules for today</div>
+      <div class="nr"><div class="nrdot"></div><span>No fried food</span></div>
+      <div class="nr"><div class="nrdot"></div><span>No sugar — except 1 tsp jaggery in morning coffee and 1 tsp in evening coffee</span></div>
+      <div class="ci" onclick="toggle('nutrition')" style="margin-top:8px;">
+        <div class="cb" id="cb-nutrition"></div>
+        <div class="cl" id="cl-nutrition">Followed my nutrition plan today</div>
+      </div>
+    </div>
+
+    <div class="slabel">Night Shift Rules</div>
+    <div class="card">
+      <div class="ctitle">3-Hour Insulin Cutoff</div>
+      <div class="csub" style="margin-bottom:12px;">Stop eating 3 hrs before sleep to keep the GH window open</div>
+      <div class="ci" onclick="toggle('cutoff')">
+        <div class="cb" id="cb-cutoff"></div>
+        <div class="cl" id="cl-cutoff">Honoured the 3-hour eating cutoff</div>
+      </div>
+      <div class="ci" onclick="toggle('blanket')">
+        <div class="cb" id="cb-blanket"></div>
+        <div class="cl" id="cl-blanket">Slept without heavy blanket (activates brown fat)</div>
+      </div>
+      <div class="ci" onclick="toggle('greentea')">
+        <div class="cb" id="cb-greentea"></div>
+        <div class="cl" id="cl-greentea">Green tea or water 1 hour before bed</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:22px 0 4px;">
+      <button class="btn primary" style="padding:13px 36px;font-size:.82rem;" onclick="saveDay()">Save Today</button>
+    </div>
+  </div>
+
+  <!-- ═══ NIGHT ═══ -->
+  <div class="section" id="tab-night">
+    <div class="gh-window">
+      <div class="gh-t">11 PM — 3 AM</div>
+      <div class="gh-l">Your Growth Hormone Window</div>
+      <div class="gh-d">Fat-burning, cell-regenerating, anti-aging magic happens here. Keep insulin low, cortisol calm, and let your body do the work.</div>
+    </div>
+
+    <div class="slabel">Insulin Cutoff Calculator</div>
+    <div class="card">
+      <div class="ctitle">Set your bedtime</div>
+      <div class="csub">We subtract 3 hours automatically</div>
+      <input type="time" id="bedtimeInput" value="23:00" onchange="calcCutoff()"/>
+      <div class="cutoff-box">
+        <div class="cutoff-t" id="cutoffDisplay">8:00 PM</div>
+        <div class="cutoff-n">Stop eating by this time — even fruit spikes insulin and blocks GH</div>
+      </div>
+      <div class="csub">Your last meal should be rich in <strong style="color:var(--ink)">protein + healthy fats</strong> — stable blood sugar, no cravings, nervous system relaxed.</div>
+    </div>
+
+    <div class="slabel">Brown Fat Protocol</div>
+    <div class="card">
+      <div class="ctitle">Sleep without heavy blanket</div>
+      <div class="csub" style="margin-bottom:12px;">Since you cannot control room temperature, a lighter sleeping environment keeps your core working to stay warm — this is what activates brown fat to burn calories all night.</div>
+      <div class="ci" onclick="toggle('blanket2')">
+        <div class="cb" id="cb-blanket2"></div>
+        <div class="cl" id="cl-blanket2">Sleeping light tonight</div>
+      </div>
+    </div>
+
+    <div class="slabel">Pre-Sleep Hydration</div>
+    <div class="card">
+      <div class="ctitle">Flush water retention</div>
+      <div class="csub" style="margin-bottom:12px;">Wake up lighter and debloated — drain before you lie flat</div>
+      <div class="ci" onclick="toggle('ntea')">
+        <div class="cb" id="cb-ntea"></div>
+        <div class="cl" id="cl-ntea">Warm green tea 1 hour before bed</div>
+      </div>
+      <div class="ci" onclick="toggle('nwater')">
+        <div class="cb" id="cb-nwater"></div>
+        <div class="cl" id="cl-nwater">Big glass of water before sleep</div>
+      </div>
+    </div>
+
+    <div class="slabel">Cortisol Wind-Down</div>
+    <div class="card">
+      <div class="ctitle">Protect the GH pulse</div>
+      <div class="csub" style="margin-bottom:12px;">High cortisol completely blocks growth hormone. Wind down gently in the last hour.</div>
+      <div class="ci" onclick="toggle('noscroll')">
+        <div class="cb" id="cb-noscroll"></div>
+        <div class="cl" id="cl-noscroll">No intense or stressful content 1 hr before bed</div>
+      </div>
+      <div class="ci" onclick="toggle('dark')">
+        <div class="cb" id="cb-dark"></div>
+        <div class="cl" id="cl-dark">Room dark — supports melatonin and GH release</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ WORKOUT ═══ -->
+  <div class="section" id="tab-workout">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="ctitle">Metabolic Night Shift</div>
+      <div class="csub">Slow, controlled movements only. No jumping, no cortisol spike. Hit Start on each exercise — it auto-checks when the round finishes.</div>
+    </div>
+    <div id="exList"></div>
+  </div>
+
+  <!-- ═══ GLOW ═══ -->
+  <div class="section" id="tab-glow">
+    <div class="card" style="margin-bottom:16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;line-height:1.5;font-weight:300;">
+      "Your skin has been stressed all day. Flush the puffiness before it pools."
+    </div>
+
+    <div class="slabel">Step 1 · Lymphatic Drain</div>
+    <div class="card">
+      <div class="ctitle">The Lavenderful Drain</div>
+      <div class="csub" style="margin-bottom:14px;">Fluid pools in your face when you lie flat for 8 hours. Drain it before it happens — takes 2 minutes.</div>
+      <div class="ritrow">
+        <div class="ritn">1</div>
+        <div><div class="ritt">Apply facial oil or moisturiser</div>
+          <div class="ritd">You need slip — fingertips glide, never drag.</div></div>
+      </div>
+      <div class="ritrow">
+        <div class="ritn">2</div>
+        <div><div class="ritt">Hook index + middle finger under jawline</div>
+          <div class="ritd">Light as a feather — weight of a fingertip only.</div></div>
+      </div>
+      <div class="ritrow">
+        <div class="ritn">3</div>
+        <div><div class="ritt">Glide: chin → ears → down the neck → collarbone</div>
+          <div class="ritd">The neck is where fluid actually exits. Most important step. Do 5 full passes.</div></div>
+      </div>
+      <div class="ci" onclick="toggle('drain')" style="margin-top:10px;">
+        <div class="cb" id="cb-drain"></div>
+        <div class="cl" id="cl-drain">Lymphatic drain complete — 5 passes</div>
+      </div>
+    </div>
+
+    <div class="slabel">Step 2 · Moisture Lock</div>
+    <div class="card">
+      <div class="ctitle">Feed the GH Window</div>
+      <div class="csub" style="margin-bottom:14px;">Growth hormone peaks 11 PM–3 AM, regenerating your skin. Lock in hydration so cells have what they need.</div>
+      <div class="ritrow">
+        <div class="ritn">1</div>
+        <div><div class="ritt">Apply thick nighttime moisturiser or sleep mask</div>
+          <div class="ritd">Cells need water to plump while hormones do the heavy lifting.</div></div>
+      </div>
+      <div class="ritrow">
+        <div class="ritn">2</div>
+        <div><div class="ritt">Extend to neck and décolleté</div>
+          <div class="ritd">GH works everywhere — never stop at the jawline.</div></div>
+      </div>
+      <div class="ci" onclick="toggle('moisture')" style="margin-top:10px;">
+        <div class="cb" id="cb-moisture"></div>
+        <div class="cl" id="cl-moisture">Nighttime moisture lock complete</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LOG ═══ -->
+  <div class="section" id="tab-log">
+    <div class="slabel">75-Day Progress</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="sdots" id="sdots"></div>
+    </div>
+    <div class="slabel">Daily History</div>
+    <div id="histList">
+      <div style="text-align:center;color:var(--ink-dim);font-size:.8rem;padding:30px 0;">Save your first day to begin the record.</div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<nav class="bnav">
+  <button class="nbtn active" id="nav-today" onclick="switchTab('today')"><span class="nicon">◯</span>Today</button>
+  <button class="nbtn" id="nav-night" onclick="switchTab('night')"><span class="nicon">◗</span>Night</button>
+  <button class="nbtn" id="nav-workout" onclick="switchTab('workout')"><span class="nicon">△</span>Workout</button>
+  <button class="nbtn" id="nav-glow" onclick="switchTab('glow')"><span class="nicon">✦</span>Glow</button>
+  <button class="nbtn" id="nav-log" onclick="switchTab('log')"><span class="nicon">≡</span>Log</button>
+</nav>
+
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+const SK = '75soft_v3';
+const HK = '75soft_v3_hist';
+let S = JSON.parse(localStorage.getItem(SK)||'null') || {startDate:null,bedtime:'23:00',checks:{},water:0};
+let H = JSON.parse(localStorage.getItem(HK)||'[]');
+const persist = () => localStorage.setItem(SK, JSON.stringify(S));
+
+// ══════════════════════════════════════
+// TABS
+// ══════════════════════════════════════
+const TABS = ['today','night','workout','glow','log'];
+function switchTab(name) {
+  TABS.forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+    document.getElementById('nav-'+t).classList.toggle('active', t===name);
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', TABS[i]===name));
+  if (name==='log') renderLog();
+}
+
+// ══════════════════════════════════════
+// DAY LOGIC
+// ══════════════════════════════════════
+const TODAY_IDS = ['w45','read','nutrition','cutoff','blanket','greentea'];
+function currentDay() {
+  if (!S.startDate) return null;
+  const start = new Date(S.startDate+'T00:00:00');
+  const now = new Date(); now.setHours(0,0,0,0);
+  return Math.min(Math.max(Math.floor((now-start)/86400000)+1,1),75);
+}
+function updateRing() {
+  const day = currentDay();
+  document.getElementById('ringDay').textContent = day||'—';
+  document.getElementById('statLeft').textContent = day ? (75-day) : '—';
+  const circ=314.16;
+  document.getElementById('ringCircle').style.strokeDashoffset = day ? circ-(day/75)*circ : circ;
+  const done = TODAY_IDS.filter(id=>S.checks[id]).length;
+  document.getElementById('statPct').textContent = Math.round((done/TODAY_IDS.length)*100)+'%';
+}
+
+// ══════════════════════════════════════
+// START DATE
+// ══════════════════════════════════════
+function updateStartBanner() {
+  const b = document.getElementById('startBanner');
+  if (S.startDate) {
+    const d = new Date(S.startDate+'T00:00:00');
+    const fmt = d.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+    b.innerHTML = `<div class="sbtext"><strong>Challenge started</strong>Day 1: ${fmt}</div>
+      <button class="btn" onclick="openStart()" style="flex-shrink:0;font-size:.7rem;padding:9px 14px;">Change</button>`;
+  }
+}
+function openStart() { document.getElementById('startModal').style.display='block'; if(S.startDate) document.getElementById('startDateInput').value=S.startDate; }
+function closeStart() { document.getElementById('startModal').style.display='none'; }
+function setStart() {
+  const v=document.getElementById('startDateInput').value;
+  if (!v) { showToast('Pick a date first'); return; }
+  S.startDate=v; persist(); closeStart(); updateStartBanner(); updateRing(); renderStreakDots(); showToast('Day 1 set. Let us begin.');
+}
+
+// ══════════════════════════════════════
+// CHECKS
+// ══════════════════════════════════════
+const ALL_IDS=['w45','read','nutrition','cutoff','blanket','greentea','blanket2','ntea','nwater','noscroll','dark','drain','moisture'];
+function toggle(id) { S.checks[id]=!S.checks[id]; persist(); renderChecks(); updateRing(); }
+function renderChecks() {
+  ALL_IDS.forEach(id => {
+    const cb=document.getElementById('cb-'+id);
+    const cl=document.getElementById('cl-'+id);
+    if (!cb) return;
+    cb.classList.toggle('on',!!S.checks[id]);
+    cl.classList.toggle('done',!!S.checks[id]);
+  });
+}
+
+// ══════════════════════════════════════
+// WATER
+// ══════════════════════════════════════
+function renderWater() {
+  const g=document.getElementById('wgrid'); g.innerHTML='';
+  for (let i=0;i<12;i++) {
+    const el=document.createElement('div');
+    el.className='wdrop'+(i<S.water?' filled':'');
+    el.onclick=()=>{ S.water=S.water===i+1?i:i+1; persist(); renderWater(); };
+    g.appendChild(el);
+  }
+  document.getElementById('wnote').textContent=`${S.water} / 12 glasses (${S.water*250} ml)`;
+}
+
+// ══════════════════════════════════════
+// CUTOFF
+// ══════════════════════════════════════
+function calcCutoff() {
+  const val=document.getElementById('bedtimeInput').value||'23:00';
+  S.bedtime=val; persist();
+  let [h,m]=val.split(':').map(Number); h-=3; if(h<0)h+=24;
+  const ap=h>=12?'PM':'AM';
+  document.getElementById('cutoffDisplay').textContent=((h%12)||12)+':'+String(m).padStart(2,'0')+' '+ap;
+}
+
+// ══════════════════════════════════════
+// SAVE DAY
+// ══════════════════════════════════════
+function saveDay() {
+  if (!S.startDate) { showToast('Set your start date first'); openStart(); return; }
+  const day=currentDay();
+  const done=TODAY_IDS.filter(id=>S.checks[id]).length;
+  const score=Math.round((done/TODAY_IDS.length)*100);
+  const entry={day,date:new Date().toLocaleDateString('en-IN'),score,checks:{...S.checks},water:S.water};
+  const idx=H.findIndex(e=>e.day===day);
+  if (idx>=0) H[idx]=entry; else H.push(entry);
+  localStorage.setItem(HK,JSON.stringify(H));
+  renderStreakDots(); showToast(`Day ${day} saved — ${score}%`);
+}
+
+// ══════════════════════════════════════
+// LOG
+// ══════════════════════════════════════
+function renderStreakDots() {
+  const c=document.getElementById('sdots'); if(!c)return; c.innerHTML='';
+  const done=new Set(H.map(e=>e.day)); const day=currentDay();
+  for (let i=1;i<=75;i++) {
+    const d=document.createElement('div');
+    d.className='sdot'+(i===day?' today':done.has(i)?' done':''); c.appendChild(d);
+  }
+}
+function renderLog() {
+  renderStreakDots();
+  const c=document.getElementById('histList');
+  if (!H.length) { c.innerHTML='<div style="text-align:center;color:var(--ink-dim);font-size:.8rem;padding:30px 0;">Save your first day to begin the record.</div>'; return; }
+  c.innerHTML='';
+  [...H].reverse().forEach(e=>{
+    const row=document.createElement('div'); row.className='hrow';
+    const bars=TODAY_IDS.map(id=>`<div class="hbar${e.checks&&e.checks[id]?' done':''}"></div>`).join('');
+    row.innerHTML=`<div class="hday">${e.day}</div><div class="hbars">${bars}</div><div class="hscore">${e.score}%</div>`;
+    c.appendChild(row);
+  });
+}
+
+// ══════════════════════════════════════
+// EXERCISES + GLYPHS
+// ══════════════════════════════════════
+/*
+  Each SVG is drawn on a 200x180 viewBox.
+  I draw proper stick figures: head circle, neck line, spine, pelvis dot, thighs, shins, feet.
+  Shoulders as a line across, upper arms, forearms.
+  Key: all body parts in anatomically correct positions for each exercise.
+*/
+
+const exercises = [
+  {
+    name: "Alternating Leg Drops",
+    timing: "40s work · 20s rest",
+    tip: "Prop yourself up on your elbows. Push the floor away so your chest stays proud — do not sink into your shoulders. Bring both knees up, then slowly lower one heel until it just taps the mattress. Exhale as the heel drops. Feel it pulling in your lower belly. Do not let your lower back cave. If you feel an arch, do not drop the heel all the way.",
+    svg: `<svg id="ex1svg" viewBox="0 0 200 180" width="180" height="160">
+  <line class="fig-floor" x1="10" y1="148" x2="190" y2="148"/>
+  <!--
+    Torso at 120deg from vertical = 30deg recline from floor.
+    Pelvis (hip) at (95,140). Torso goes up-left at 30deg above horizontal.
+    Spine length ~44px: pelvis(95,140) -> shoulder(55,118).
+    Head above shoulder: (48,107).
+    Elbows propped on floor behind the torso.
+  -->
+  <!-- Pelvis -->
+  <circle class="fig-joint" cx="95" cy="140" r="4"/>
+  <!-- Spine: 30deg above horizontal going left -->
+  <line class="fig-body" x1="95" y1="140" x2="55" y2="118"/>
+  <!-- Shoulder line -->
+  <line class="fig-body" x1="50" y1="120" x2="62" y2="116"/>
+  <!-- Neck -->
+  <line class="fig-body" x1="56" y1="118" x2="50" y2="108"/>
+  <!-- Head -->
+  <circle class="fig-head" cx="44" cy="99" r="11"/>
+  <!-- Left elbow on floor -->
+  <line class="fig-limb" x1="52" y1="120" x2="38" y2="132"/>
+  <circle class="fig-joint" cx="38" cy="132" r="3"/>
+  <line class="fig-limb" x1="38" y1="132" x2="28" y2="148"/>
+  <!-- Right elbow on floor -->
+  <line class="fig-limb" x1="62" y1="116" x2="52" y2="130"/>
+  <circle class="fig-joint" cx="52" cy="130" r="3"/>
+  <line class="fig-limb" x1="52" y1="130" x2="46" y2="148"/>
+  <!-- Animated legs -->
+  <line id="ex1-thighL" stroke="rgba(247,243,238,0.55)" stroke-width="2.5" stroke-linecap="round"/>
+  <circle id="ex1-kneeL" r="3" fill="rgba(247,243,238,0.35)"/>
+  <line id="ex1-shinL" stroke="rgba(247,243,238,0.55)" stroke-width="2.5" stroke-linecap="round"/>
+  <line id="ex1-thighR" stroke="#c9788a" stroke-width="2.8" stroke-linecap="round"/>
+  <circle id="ex1-kneeR" r="3.5" fill="#c9788a"/>
+  <line id="ex1-shinR" stroke="#c9788a" stroke-width="2.8" stroke-linecap="round"/>
+</svg>`
+  },
+  {
+    name: "Reverse Crunch + Kick-Out + Tuck",
+    timing: "40s work · 20s rest",
+    tip: "Lie flat on your back. Kick both legs straight out so they hover just above the ground, then aggressively tuck your knees deep into your chest. Imagine you are giving your digestive organs a gentle massage on every tuck. Do not let your legs drop too low — if your lower back lifts off the floor, aim your feet higher toward the ceiling.",
+    // Lying flat on back. Crossfade: legs kick out straight (hover) vs knees tuck to chest.
+    svg: `<svg viewBox="0 0 200 180" width="180" height="160">
+  <!-- Floor -->
+  <line class="fig-floor" x1="10" y1="148" x2="190" y2="148"/>
+
+  <!-- STATIC: person lying flat on back, head left -->
+  <circle class="fig-head" cx="22" cy="116" r="11"/>
+  <line class="fig-body" x1="22" y1="127" x2="28" y2="132"/>
+  <line class="fig-body" x1="28" y1="132" x2="88" y2="132"/>
+  <circle class="fig-joint" cx="88" cy="132" r="4"/>
+  <!-- Arms flat beside body -->
+  <line class="fig-limb" x1="42" y1="132" x2="40" y2="142"/>
+  <line class="fig-limb" x1="40" y1="142" x2="58" y2="148"/>
+  <line class="fig-limb" x1="62" y1="132" x2="60" y2="142"/>
+  <line class="fig-limb" x1="60" y1="142" x2="78" y2="148"/>
+
+  <!-- POS A: KICK OUT — both legs extend straight out, hovering ~15px above floor -->
+  <g class="ex2-kick">
+    <!-- Upper leg (slight spread) -->
+    <line class="fig-limb" x1="88" y1="132" x2="122" y2="128"/>
+    <circle class="fig-joint" cx="122" cy="128" r="3"/>
+    <line class="fig-limb" x1="122" y1="128" x2="168" y2="133"/>
+    <line class="fig-limb" x1="168" y1="133" x2="180" y2="132"/>
+    <!-- Lower leg (slight spread) -->
+    <line class="fig-active" x1="88" y1="132" x2="122" y2="136"/>
+    <circle class="fig-joint-active" cx="122" cy="136" r="3"/>
+    <line class="fig-active" x1="122" y1="136" x2="168" y2="140"/>
+    <line class="fig-active" x1="168" y1="140" x2="180" y2="140"/>
+  </g>
+
+  <!-- POS B: TUCK — both knees pulled into chest, shins fold back -->
+  <g class="ex2-tuck">
+    <!-- Upper leg tucked: thigh folds toward torso -->
+    <line class="fig-limb" x1="88" y1="132" x2="74" y2="108"/>
+    <circle class="fig-joint" cx="74" cy="108" r="3"/>
+    <!-- shin folds back toward butt -->
+    <line class="fig-limb" x1="74" y1="108" x2="88" y2="96"/>
+    <circle class="fig-joint" cx="88" cy="96" r="2.5"/>
+    <line class="fig-limb" x1="88" y1="96" x2="100" y2="100"/>
+    <!-- Lower leg tucked -->
+    <line class="fig-active" x1="88" y1="132" x2="76" y2="116"/>
+    <circle class="fig-joint-active" cx="76" cy="116" r="3"/>
+    <line class="fig-active" x1="76" y1="116" x2="92" y2="104"/>
+    <circle class="fig-joint" cx="92" cy="104" r="2.5"/>
+    <line class="fig-active" x1="92" y1="104" x2="104" y2="108"/>
+  </g>
+</svg>`
+  },
+  {
+    name: "Crunches",
+    timing: "40s work · 20s rest",
+    tip: "Plant your feet flat, keep knees bent. Gently place your hands behind your ears — they are a hammock for your head, not a crane. Lift just your shoulder blades off the mattress. Pause at the top and slowly lower back down. Imagine a small lemon tucked under your chin — do not squish it. All pulling power comes from your abs, not your neck.",
+    // Lying on back, knees bent. Upper body curls up.
+    svg: `<svg viewBox="0 0 200 180" width="180" height="160">
+  <!-- Floor -->
+  <line class="fig-floor" x1="10" y1="140" x2="190" y2="140"/>
+
+  <!-- Lower body: static, lying, knees bent -->
+  <!-- Pelvis on floor -->
+  <circle class="fig-joint" cx="90" cy="132" r="4"/>
+  <!-- Left thigh -->
+  <line class="fig-limb" x1="90" y1="132" x2="118" y2="122"/>
+  <circle class="fig-joint" cx="118" cy="122" r="3"/>
+  <line class="fig-limb" x1="118" y1="122" x2="138" y2="140"/>
+  <!-- Right thigh -->
+  <line class="fig-limb" x1="90" y1="132" x2="112" y2="126"/>
+  <circle class="fig-joint" cx="112" cy="126" r="3"/>
+  <line class="fig-limb" x1="112" y1="126" x2="128" y2="140"/>
+  <!-- Feet flat -->
+  <line class="fig-limb" x1="138" y1="140" x2="152" y2="140"/>
+  <line class="fig-limb" x1="128" y1="140" x2="142" y2="140"/>
+
+  <!-- UPPER BODY: animates curling up from pelvis -->
+  <g style="transform:translate(90px,132px)">
+    <g class="ex3-upper">
+      <!-- spine going up-left -->
+      <line class="fig-body" x1="0" y1="0" x2="-36" y2="-28"/>
+      <!-- shoulders -->
+      <line class="fig-body" x1="-32" y1="-26" x2="-22" y2="-32"/>
+      <!-- neck -->
+      <line class="fig-body" x1="-30" y1="-28" x2="-28" y2="-38"/>
+      <!-- head -->
+      <circle class="fig-head" cx="-28" cy="-49" r="11"/>
+      <!-- LEFT arm: hand behind ear -->
+      <line class="fig-limb" x1="-36" y1="-28" x2="-42" y2="-20"/>
+      <circle class="fig-joint" cx="-42" cy="-20" r="2.5"/>
+      <line class="fig-limb" x1="-42" y1="-20" x2="-36" y2="-46"/>
+      <!-- RIGHT arm: hand behind ear -->
+      <line class="fig-limb" x1="-22" y1="-32" x2="-16" y2="-24"/>
+      <circle class="fig-joint" cx="-16" cy="-24" r="2.5"/>
+      <line class="fig-limb" x1="-16" y1="-24" x2="-22" y2="-46"/>
+      <!-- Active abs highlight -->
+      <line class="fig-active" x1="0" y1="0" x2="-20" y2="-14"/>
+    </g>
+  </g>
+</svg>`
+  },
+  {
+    name: "Donkey Kicks",
+    timing: "40s work · 20s rest",
+    tip: "Go onto hands and knees in a tabletop position. Wrists directly under shoulders, knees directly under hips. Keeping your right knee bent at 90 degrees, flex your foot and press that heel straight up toward the ceiling. Give your glute a tight squeeze at the top. Bring it back down slowly and switch legs. Do not arch your lower back to kick higher — imagine a warm cup of tea resting on your lower back. Do not spill it.",
+    // On hands and knees, facing left. Right leg (back leg) kicks heel up to ceiling.
+    // Crossfade: rest position (knee on floor) vs kick position (heel raised, knee still bent 90deg)
+    svg: `<svg viewBox="0 0 200 180" width="180" height="160">
+  <!-- Floor -->
+  <line class="fig-floor" x1="10" y1="148" x2="190" y2="148"/>
+
+  <!-- STATIC: person on all fours, facing LEFT -->
+  <!-- Head at left, butt at right -->
+  <circle class="fig-head" cx="28" cy="88" r="11"/>
+  <line class="fig-body" x1="28" y1="99" x2="34" y2="106"/>
+  <!-- Spine horizontal -->
+  <line class="fig-body" x1="34" y1="106" x2="110" y2="106"/>
+  <!-- Pelvis/hip joint -->
+  <circle class="fig-joint" cx="110" cy="106" r="4"/>
+
+  <!-- LEFT HAND (wrist on floor near head side) -->
+  <line class="fig-limb" x1="46" y1="106" x2="44" y2="124"/>
+  <circle class="fig-joint" cx="44" cy="124" r="3"/>
+  <line class="fig-limb" x1="44" y1="124" x2="38" y2="148"/>
+  <line class="fig-limb" x1="38" y1="148" x2="28" y2="148"/>
+
+  <!-- RIGHT HAND -->
+  <line class="fig-limb" x1="70" y1="106" x2="68" y2="124"/>
+  <circle class="fig-joint" cx="68" cy="124" r="3"/>
+  <line class="fig-limb" x1="68" y1="124" x2="62" y2="148"/>
+  <line class="fig-limb" x1="62" y1="148" x2="52" y2="148"/>
+
+  <!-- LEFT LEG (stable, knee on floor) — stays in both positions -->
+  <line class="fig-limb" x1="110" y1="106" x2="108" y2="130"/>
+  <circle class="fig-joint" cx="108" cy="130" r="3"/>
+  <line class="fig-limb" x1="108" y1="130" x2="106" y2="148"/>
+  <line class="fig-limb" x1="106" y1="148" x2="120" y2="148"/>
+
+  <!-- RIGHT LEG: POS REST — thigh down, shin on floor, knee bent 90deg -->
+  <g class="ex4-rest">
+    <line class="fig-limb" x1="110" y1="106" x2="140" y2="124"/>
+    <circle class="fig-joint" cx="140" cy="124" r="3"/>
+    <line class="fig-limb" x1="140" y1="124" x2="138" y2="148"/>
+    <line class="fig-limb" x1="138" y1="148" x2="152" y2="148"/>
+  </g>
+
+  <!-- RIGHT LEG: POS KICK — thigh still ~horizontal (going right), shin kicks UP (knee still bent 90deg) -->
+  <!-- Thigh: from hip going right/back -->
+  <g class="ex4-kick">
+    <line class="fig-active" x1="110" y1="106" x2="142" y2="114"/>
+    <circle class="fig-joint-active" cx="142" cy="114" r="3"/>
+    <!-- Shin: from knee pointing UP (heel toward ceiling) -->
+    <line class="fig-active" x1="142" y1="114" x2="148" y2="76"/>
+    <!-- Flexed foot at top -->
+    <line class="fig-active" x1="148" y1="76" x2="160" y2="80"/>
+  </g>
+</svg>`
+  },
+  {
+    name: "Toe Touch Crunches",
+    timing: "40s work · 20s rest",
+    tip: "Lie flat on your back with both legs pointing straight up to the ceiling. Reach your fingertips straight up as if trying to tap your shoelaces. Exhale sharply on the way up. Actively peel your spine off the mat inch by inch — do not use momentum to swing your arms up. This gives your hamstrings a beautiful relaxing stretch while targeting the upper abs.",
+    // Lying on back, legs vertical. Upper body reaches up toward feet.
+    svg: `<svg viewBox="0 0 200 180" width="180" height="160">
+  <!-- Floor / mat -->
+  <line class="fig-floor" x1="10" y1="148" x2="190" y2="148"/>
+
+  <!-- LEGS pointing straight up — static -->
+  <!-- Pelvis on floor -->
+  <circle class="fig-joint" cx="90" cy="138" r="4"/>
+  <!-- Left thigh vertical -->
+  <line class="fig-limb" x1="84" y1="138" x2="80" y2="90"/>
+  <circle class="fig-joint" cx="80" cy="90" r="3"/>
+  <line class="fig-limb" x1="80" y1="90" x2="76" y2="48"/>
+  <!-- Left foot -->
+  <line class="fig-limb" x1="76" y1="48" x2="68" y2="44"/>
+  <!-- Right thigh vertical -->
+  <line class="fig-limb" x1="96" y1="138" x2="100" y2="90"/>
+  <circle class="fig-joint" cx="100" cy="90" r="3"/>
+  <line class="fig-limb" x1="100" y1="90" x2="104" y2="48"/>
+  <!-- Right foot -->
+  <line class="fig-limb" x1="104" y1="48" x2="112" y2="44"/>
+
+  <!-- UPPER BODY animates reaching up from lying flat -->
+  <g style="transform:translate(90px,138px)">
+    <g class="ex5-reach">
+      <!-- spine peeling off floor -->
+      <line class="fig-body" x1="0" y1="0" x2="-32" y2="-14"/>
+      <!-- shoulder line -->
+      <line class="fig-body" x1="-28" y1="-12" x2="-18" y2="-17"/>
+      <!-- neck -->
+      <line class="fig-body" x1="-26" y1="-14" x2="-24" y2="-24"/>
+      <!-- head -->
+      <circle class="fig-head" cx="-24" cy="-35" r="11"/>
+      <!-- LEFT arm reaching up toward feet -->
+      <line class="fig-active" x1="-32" y1="-14" x2="-20" y2="-55"/>
+      <circle class="fig-joint" cx="-20" cy="-55" r="2.5"/>
+      <line class="fig-active" x1="-20" y1="-55" x2="-10" y2="-72"/>
+      <!-- RIGHT arm reaching up -->
+      <line class="fig-active" x1="-18" y1="-17" x2="-6" y2="-55"/>
+      <circle class="fig-joint" cx="-6" cy="-55" r="2.5"/>
+      <line class="fig-active" x1="-6" y1="-55" x2="4" y2="-72"/>
+      <!-- fingers near toes -->
+      <circle class="fig-joint-active" cx="-8" cy="-74" r="2"/>
+      <circle class="fig-joint-active" cx="5" cy="-74" r="2"/>
+    </g>
+  </g>
+</svg>`
+  }
+];
+
+// Per-exercise timer state
+const exTimers = exercises.map(() => ({ seconds:40, phase:'work', running:false, iv:null }));
+
+function renderExercises() {
+  const cont = document.getElementById('exList');
+  cont.innerHTML = '';
+  exercises.forEach((ex, i) => {
+    const key = 'ex'+i;
+    const card = document.createElement('div');
+    card.className = 'exc' + (S.checks[key] ? ' done-ex' : '');
+    card.id = 'exc-'+i;
+    card.innerHTML = `
+      <div class="exh" onclick="toggleExBody(${i})">
+        <div class="exn">0${i+1}</div>
+        <div class="exi">
+          <div class="exname">${ex.name}</div>
+          <div class="extiming">${ex.timing}</div>
+        </div>
+        <div class="extick${S.checks[key]?' done':''}" id="tick-${i}">${S.checks[key]?'✓':'›'}</div>
+      </div>
+      <div class="exb" id="exb-${i}">
+        <div class="glyph-stage">${ex.svg}</div>
+        <div class="extip">${ex.tip}</div>
+        <div class="extimer" id="etimer-${i}">
+          <div>
+            <div class="extime-num" id="etime-${i}">00:40</div>
+            <div class="extime-phase" id="ephase-${i}">Work — feel it</div>
+          </div>
+          <div class="extime-btns">
+            <button class="btn primary" id="ebtn-${i}" onclick="event.stopPropagation();toggleTimer(${i})" style="padding:9px 16px;font-size:.72rem;">Start</button>
+            <button class="btn" onclick="event.stopPropagation();resetTimer(${i})" style="padding:9px 12px;font-size:.72rem;">Reset</button>
+          </div>
+        </div>
+      </div>`;
+    cont.appendChild(card);
+  });
+}
+
+function toggleExBody(i) {
+  document.getElementById('exb-'+i).classList.toggle('open');
+}
+
+function toggleTimer(i) {
+  const t = exTimers[i];
+  if (t.running) {
+    clearInterval(t.iv); t.running=false;
+    document.getElementById('ebtn-'+i).textContent='Resume';
+    return;
+  }
+  t.running=true;
+  document.getElementById('ebtn-'+i).textContent='Pause';
+  t.iv = setInterval(() => {
+    t.seconds--;
+    if (t.seconds < 0) {
+      if (t.phase==='work') {
+        t.phase='rest'; t.seconds=20;
+      } else {
+        // Round complete
+        clearInterval(t.iv); t.running=false; t.seconds=40; t.phase='work';
+        document.getElementById('ebtn-'+i).textContent='Again';
+        // Auto-check
+        const key='ex'+i;
+        S.checks[key]=true; persist();
+        document.getElementById('exc-'+i).classList.add('done-ex');
+        const tick=document.getElementById('tick-'+i);
+        tick.classList.add('done'); tick.textContent='✓';
+        showToast(exercises[i].name+' — complete');
+      }
+    }
+    updateTimerUI(i);
+  }, 1000);
+}
+
+function resetTimer(i) {
+  const t=exTimers[i]; clearInterval(t.iv); t.running=false; t.seconds=40; t.phase='work';
+  document.getElementById('ebtn-'+i).textContent='Start';
+  updateTimerUI(i);
+}
+
+function updateTimerUI(i) {
+  const t=exTimers[i];
+  const m=Math.floor(t.seconds/60).toString().padStart(2,'0');
+  const s=(t.seconds%60).toString().padStart(2,'0');
+  document.getElementById('etime-'+i).textContent=`${m}:${s}`;
+  document.getElementById('ephase-'+i).textContent=t.phase==='work'?'Work — feel it':'Rest — breathe';
+  document.getElementById('etimer-'+i).style.background=t.phase==='work'?'rgba(155,125,181,.1)':'rgba(201,120,138,.08)';
+}
+
+// ══════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ══════════════════════════════════════
+// PWA - INSTALL
+// ══════════════════════════════════════
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt=e;
+  document.getElementById('installBar').classList.add('visible');
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const {outcome} = await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('installBar').classList.remove('visible');
+  if (outcome==='accepted') showToast('App installed — works offline now');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBar').classList.remove('visible');
+});
+
+// ══════════════════════════════════════
+// SERVICE WORKER
+// ══════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(r => console.log('SW registered:', r.scope))
+    .catch(e => console.warn('SW failed:', e));
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+function init() {
+  updateStartBanner(); updateRing(); renderChecks(); renderWater();
+  renderExercises(); renderStreakDots();
+  calcCutoff();
+  document.getElementById('bedtimeInput').value = S.bedtime||'23:00';
+}
+init();
+
+// ══════════════════════════════════════
+// LEG DROP ANIMATION (Exercise 1)
+// ══════════════════════════════════════
+// Exercise: torso reclined at 120deg (30deg from floor), propped on elbows.
+// Both legs start with knees bent 90deg, shins parallel to floor (elevated).
+// One leg extends straight and lowers until the heel touches the mat,
+// then returns to 90deg bent position while the other leg goes down.
+// Legs alternate. Two phases per cycle: left down, right down.
+//
+// Coordinate system (SVG, y increases downward):
+//   Hip: (95, 140)    Floor: y = 148
+//   Thigh length: 28px   Shin length: 26px
+//
+// START position (both legs):
+//   Thigh: points toward feet, angled slightly upward
+//     hip(95,140) -> knee(123,128)  [dx=+28, dy=-12, ~23deg above horizontal]
+//   Shin: parallel to floor, pointing toward feet from knee
+//     knee(123,128) -> heel(149,128)  [horizontal, same y as knee]
+//
+// DOWN position (one leg at a time):
+//   The whole leg extends straight and the heel drops to floor level.
+//   Thigh flattens more: hip(95,140) -> knee(123,134) [more horizontal]
+//   Shin straightens and heel touches mat: knee(123,134) -> heel(151,148)
+//
+// We interpolate between START and DOWN using a smooth ping-pong.
+// Left and right legs are 180deg out of phase.
+
+(function legDropLoop() {
+  // Hip joint
+  const HX = 95, HY = 140;
+
+  // START: knee bent 90deg, shin parallel to floor
+  // Left leg (drawn slightly above right for depth)
+  const L_KNEE_START = { x: 122, y: 126 };
+  const L_HEEL_START = { x: 148, y: 126 };
+
+  const R_KNEE_START = { x: 124, y: 130 };
+  const R_HEEL_START = { x: 150, y: 130 };
+
+  // DOWN: leg extended, heel on mat
+  const L_KNEE_DOWN = { x: 124, y: 136 };
+  const L_HEEL_DOWN = { x: 152, y: 148 };
+
+  const R_KNEE_DOWN = { x: 126, y: 138 };
+  const R_HEEL_DOWN = { x: 154, y: 148 };
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function lerpPt(a, b, t) { return { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) }; }
+  // Smooth ease in-out
+  function ease(t) { return t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; }
+
+  function setLine(id, x1, y1, x2, y2) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.setAttribute('x1', x1.toFixed(1)); el.setAttribute('y1', y1.toFixed(1));
+    el.setAttribute('x2', x2.toFixed(1)); el.setAttribute('y2', y2.toFixed(1));
+  }
+  function setCircle(id, cx, cy) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.setAttribute('cx', cx.toFixed(1)); el.setAttribute('cy', cy.toFixed(1));
+  }
+
+  function frame(ts) {
+    // Full cycle = 2.4s. Each leg gets one half.
+    const cycle = (ts / 2400) % 1;
+
+    // Left leg: down during first half (0->0.5), up during second half (0.5->1)
+    // Right leg: opposite phase
+    function legT(phase, offset) {
+      const p = (phase + offset) % 1;
+      // p 0->0.5: going down then back up (ping-pong within half)
+      // p 0->0.25: going down, 0.25->0.5: going up, 0.5->1: resting at top
+      if (p < 0.25) return ease(p / 0.25);        // 0->1 (going down)
+      if (p < 0.5)  return ease(1 - (p - 0.25) / 0.25); // 1->0 (coming back up)
+      return 0; // resting at start
+    }
+
+    const tL = legT(cycle, 0);
+    const tR = legT(cycle, 0.5);
+
+    const lKnee = lerpPt(L_KNEE_START, L_KNEE_DOWN, tL);
+    const lHeel = lerpPt(L_HEEL_START, L_HEEL_DOWN, tL);
+    const rKnee = lerpPt(R_KNEE_START, R_KNEE_DOWN, tR);
+    const rHeel = lerpPt(R_HEEL_START, R_HEEL_DOWN, tR);
+
+    setLine('ex1-thighL', HX, HY, lKnee.x, lKnee.y);
+    setCircle('ex1-kneeL', lKnee.x, lKnee.y);
+    setLine('ex1-shinL', lKnee.x, lKnee.y, lHeel.x, lHeel.y);
+
+    setLine('ex1-thighR', HX, HY, rKnee.x, rKnee.y);
+    setCircle('ex1-kneeR', rKnee.x, rKnee.y);
+    setLine('ex1-shinR', rKnee.x, rKnee.y, rHeel.x, rHeel.y);
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
